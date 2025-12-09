@@ -20,7 +20,7 @@ env:
   CRATE_NAME: dalamud_stats
 
 jobs:
-  build-and-upload:
+  build:
     name: Build - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -55,11 +55,33 @@ jobs:
         run: |
           cp target/${{ matrix.target }}/release/${{ env.CRATE_NAME }}${{ matrix.suffix }} ${{ matrix.asset_name }}
 
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.os }}
+          path: ${{ matrix.asset_name }}
+          retention-days: 1
+
+  publish:
+    name: Publish Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-assets
+          pattern: binary-*
+          merge-multiple: true
+
+      - name: Display Files (Debug)
+        run: ls -R all-assets
+
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.version || github.ref_name }}
-          files: ${{ matrix.asset_name }}
+          files: all-assets/*
           draft: false
           prerelease: false
         env:
