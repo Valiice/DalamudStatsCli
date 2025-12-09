@@ -1,0 +1,11 @@
+[package]
+name = "dalamud_stats"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+chrono = "0.4.42"
+comfy-table = "7.2.1"
+reqwest = { version = "0.12.25", features = ["blocking", "json"] }
